@@ -35,11 +35,6 @@ backup/1
 * Subject: Re:
 ! ${MASTERADDR}
 
-# If it's from the webmaster, send it to ${MASTERADDR}
-:0
-* ^From:.*webmaster@execpc
-! ${MASTERADDR}
-
 :0
 * ^X-Mailer:.*outlook
 * ^Content-Type: multipart/mixed
