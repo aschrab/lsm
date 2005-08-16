@@ -36,15 +36,6 @@ backup/1
 ! ${MASTERADDR}
 
 :0
-* ^X-Mailer:.*outlook
-* ^Content-Type: multipart/mixed
-* ^foo: bar$
-* B ?? ^Content-Disposition: .*^$
-{
-  FOO=bar
-}
-
-:0
 * ^(Sender:|From[: ]).*(postmaster|mailer-daemon|<@>)
 | formail -A"X-Procmail: lsm mail from daemon" | $SENDMAIL ${MASTERADDR}
 
