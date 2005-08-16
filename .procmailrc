@@ -7,7 +7,7 @@ COMSAT=no
 
 LOOPADDR="lsm@execpc.com"
 LOOPCHECK="lsm@(execpc\.com|(pug\.)?qqx\.org)"
-MASTERADDR=aarons
+MASTERADDR=aaron@schrab.com
 
 NL="
 "
