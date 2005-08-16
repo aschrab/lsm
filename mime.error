@@ -1,0 +1,16 @@
+Your LSM entry has not been added, because your message was of an
+unsupported MIME type.
+
+Additions to the LSM must either be non-MIME (no Content-type: header),
+or contain only one part of plain text (Content-type: text/plain).  They
+may not be in HTML or enriched text (even if a plain text alternative is
+also included), and may not have attachments (this includes signatures,
+"business cards", and especially Microsoft's winmail.dat attachments).
+
+Also the encoding (Content-transfer-encoding: header) must be either
+7bit or 8bit; quoted-printable, base64, and anything else will not work
+(although the mail server here will often translate quoted-printable or
+base64 to 8bit).
+
+Your original message is quoted below.
+
