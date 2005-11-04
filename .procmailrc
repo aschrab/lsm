@@ -34,8 +34,15 @@ backup/1
 # If it's a reply to a local message, send it to ${MASTERADDR}
 :0
 * ^Subject: Re:
-* ^(References|In-Reply-To):.*[@.]qqx\.org
-! ${MASTERADDR}
+{
+  :0
+  * ^(References|In-Reply-To):.*[@.]qqx\.org
+  ! ${MASTERADDR}
+
+  # Drop other replies
+  :0
+  { HOST }
+}
 
 :0
 * ^(Sender:|From[: ]).*(postmaster|mailer-daemon|<@>)
