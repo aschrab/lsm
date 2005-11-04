@@ -1,3 +1,4 @@
+# $Id$
 LOGFILE=procmail.log
 LOGABSTRACT=all
 SHELL=/bin/sh
@@ -30,9 +31,10 @@ backup/1
 * Subject:.*cron
 ! ${MASTERADDR}
 
-# If it's a reply, send it to ${MASTERADDR}
+# If it's a reply to a local message, send it to ${MASTERADDR}
 :0
-* Subject: Re:
+* ^Subject: Re:
+* ^(References|In-Reply-To):.*[@.]qqx\.org
 ! ${MASTERADDR}
 
 :0
