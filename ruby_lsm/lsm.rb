@@ -64,7 +64,7 @@ class LSM_Entry
       when /^([a-z-]+):\s*(.*)/im
         field, content = $1, $2
         while lines[0] and lines[0][/^(\s+(.*)|$)/m]
-          content << $2
+          content << $1
           lines.shift
         end
         field = field.downcase.gsub /-/, '_'
