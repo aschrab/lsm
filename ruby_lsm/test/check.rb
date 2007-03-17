@@ -61,3 +61,5 @@ class TestCheck < Test::Unit::TestCase
     assert_equal 'GPL', entry.copying_policy
   end
 end
+
+# vim: fdm=syntax
