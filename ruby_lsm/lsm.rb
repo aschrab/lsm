@@ -95,11 +95,11 @@ class LSM_Entry
           content << $1
           line_num+=1
         end
-        field = field.downcase.gsub /-/, '_'
-        if FIELDS.include? field
+        meth = field.downcase.gsub /-/, '_'
+        if FIELDS.include? meth
           content = content.chomp.strip
           begin
-            send "#{field}=", content
+            send "#{meth}=", content
           rescue LSM_Error
             @errors[current_line] = $!.explanation( field, content )
           end
