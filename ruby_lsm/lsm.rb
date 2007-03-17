@@ -211,7 +211,7 @@ end #}}}
 
 if $0 == __FILE__ #{{{
   require 'yaml'
-  entry = LSM_Entry.new.from_file( $stdin )
+  entry = LSM_Entry.new.from_file( $< )
   output = entry.report_errors || entry.format
   puts output
 end #}}}
