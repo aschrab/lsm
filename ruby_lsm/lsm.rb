@@ -119,6 +119,25 @@ class LSM_Entry
     self
   end
 
+  def field_name meth
+    meth.gsub(/_/, '-').sub(/^([a-z])/){ $1.upcase }
+  end
+
+  def format
+    header_length = FIELDS.map{|x| x.length}.max
+
+    output = "Begin4\n"
+    FIELDS.each do |meth|
+      content = send meth
+      next unless content
+      field = field_name meth
+      spaces = ' ' * (header_length - field.length)
+      output << "#{field}: #{spaces}#{content}\n"
+    end
+    output << "End\n"
+    output
+  end
+
   def report_errors
     return unless has_errors?
     output = ''
@@ -137,7 +156,7 @@ class LSM_Entry
     end
 
     (missing_fields or []).each do |field|
-      field = field.gsub(/_/, '-').sub(/^([a-z])/){ $1.upcase }
+      field = field_name field
       output << "error: Required header '#{field}' is missing\n"
     end
 
@@ -148,5 +167,6 @@ end
 if $0 == __FILE__
   require 'yaml'
   entry = LSM_Entry.new.from_file( $stdin )
-  puts entry.report_errors
+  output = entry.report_errors || entry.format
+  puts output
 end
