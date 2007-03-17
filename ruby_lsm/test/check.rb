@@ -8,6 +8,10 @@ $dir = 'test/files'
 class TestCheck < Test::Unit::TestCase
   def test_good
     entry = File.open("#{$dir}/good.lsm"){ |f| LSM_Entry.new.from_file f }
+    assert_equal nil, entry.has_errors?
+    assert_equal nil, entry.report_errors
+    assert_equal nil, entry.missing_fields
+    assert_equal Hash.new, entry.errors
     assert_equal( 'lsmtool', entry.title )
     assert_equal( '0.7', entry.version )
     assert_equal( 'GPL', entry.copying_policy )
