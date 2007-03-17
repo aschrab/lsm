@@ -23,7 +23,7 @@ class LSM_Entry
 
   attr_accessor :completed, *FIELDS
 
-  attr_reader :lines
+  attr_reader :lines, :errors
 
   def initialize
     @errors = {}
@@ -108,6 +108,8 @@ class LSM_Entry
         end
       when /^\s*$/
         # Ignore empty lines before first field
+      when nil
+        break
       else
         @errors[current_line] = [ "No keyword found",
           "  (lines beginning in column 1 must begin with a keyword)" ]
@@ -118,6 +120,7 @@ class LSM_Entry
   end
 
   def report_errors
+    return unless has_errors?
     output = ''
     lines.each_with_index do |line,idx|
       output << '%2d: %s' % [ idx+1, line ]
