@@ -50,4 +50,14 @@ class TestCheck < Test::Unit::TestCase
     assert_equal 'lsmtool', entry.title
     assert_equal 'GPL', entry.copying_policy
   end
+
+  def test_invalid_author
+    entry=File.open("#{$dir}/invalid_author.lsm"){|f| LSM_Entry.new.from_file f}
+    assert_not_nil entry.has_errors?
+    assert_equal nil, entry.missing_fields
+    assert_equal [8], entry.errors.keys
+    assert_match %r{'Author' does not seem to contain}, entry.report_errors
+    assert_equal 'lsmtool', entry.title
+    assert_equal 'GPL', entry.copying_policy
+  end
 end

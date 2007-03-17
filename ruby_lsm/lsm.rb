@@ -6,10 +6,18 @@ class LSM_Error < Exception #{{{
   class NoEntry < self; end
   class BadLine< self; end
   class UnknownField < self; end
-  class InvalidDate < self
-    def explanation field, content #{{{
+  class InvalidDate < self #{{{
+    def explanation field, content
       [
         "field '#{field}' contains invalid date '#{content}'"
+      ]
+    end
+  end #}}}
+  class InvalidEmail < self #{{{
+    def explanation field, content
+      [
+        "field '#{field}' does not seem to contain",
+        "  an e-mail address (no `@' character)"
       ]
     end
   end #}}}
@@ -46,6 +54,32 @@ class LSM_Entry #{{{
   def entered_date= dt #{{{
     @entered_date = false
     @entered_date = parse_date dt
+  end #}}}
+
+  # Check/set Checked-date
+  def checked_date= dt #{{{
+    @checked_date = false
+    @checked_date = parse_date dt
+  end #}}}
+
+  # Check/set Author
+  def author= auth #{{{
+    if auth[/@/]
+      @author = auth
+    else
+      @author = false
+      raise LSM_Error::InvalidEmail
+    end
+  end #}}}
+
+  # Check/set Maintained-by
+  def maintained_by= maint #{{{
+    if maint[/@/]
+      @maintained_by = maint
+    else
+      @maintained_by = false
+      raise LSM_Error::InvalidEmail
+    end
   end #}}}
 
   # Check an parse a date, returns a Date object if successful,
