@@ -29,12 +29,16 @@ class LSM_Entry
     @errors = {}
   end
 
-  def check_required
+  def has_errors?
+    @errors.size > 0 or missing_fields
+  end
+
+  def missing_fields
     missing = []
     REQUIRED.each do |field|
-      missing << field unless send field
+      missing << field if send(field).nil?
     end
-    raise LSM_Error::MissingFields, missing.join(', ') if missing.length > 0
+    missing.length > 0 ? missing : nil
   end
 
   def entered_date= dt
@@ -129,11 +133,9 @@ class LSM_Entry
       end
     end
 
-    REQUIRED.each do |field|
-      if send(field).nil?
-        field = field.gsub(/_/, '-').sub(/^([a-z])/){ $1.upcase }
-        output << "error: Required header '#{field}' is missing\n"
-      end
+    (missing_fields or []).each do |field|
+      field = field.gsub(/_/, '-').sub(/^([a-z])/){ $1.upcase }
+      output << "error: Required header '#{field}' is missing\n"
     end
 
     output
