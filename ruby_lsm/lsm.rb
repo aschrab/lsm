@@ -6,7 +6,13 @@ class LSM_Error < Exception
   class NoEntry < self; end
   class BadLine< self; end
   class UnknownField < self; end
-  class InvalidDate < self; end
+  class InvalidDate < self
+    def explanation field, content
+      [
+        "field '#{field}' contains invalid date '#{content}'"
+      ]
+    end
+  end
   class MissingFields < self; end
 end
 
@@ -17,7 +23,10 @@ class LSM_Entry
 
   attr_accessor :completed, *FIELDS
 
+  attr_reader :lines
+
   def initialize
+    @errors = {}
   end
 
   def check_required
@@ -29,16 +38,21 @@ class LSM_Entry
   end
 
   def entered_date= dt
-    dt = dt.chomp.strip
-    begin
-      edate = Date.strptime dt, '%Y-%m-%d'
-    rescue Exception
-      raise LSM_Error::InvalidDate, "'#{dt}'"
-    end
-    @entered_date = edate
+    @entered_date = false
+    @entered_date = parse_date dt
   end
 
-  def from_file( file )
+  def parse_date dt
+    dt = dt.chomp.strip
+    raise LSM_Error::InvalidDate unless dt =~ /^\d{4}-\d{1,2}-\d{1,2}/
+    begin
+      return Date.strptime( dt, '%Y-%m-%d' )
+    rescue Exception
+      raise LSM_Error::InvalidDate
+    end
+  end
+
+  def from_file file
     # Search for beginning of entry
     file.each do |line|
       case line
@@ -48,7 +62,7 @@ class LSM_Entry
     end
 
     # Read content into an Array
-    lines = []
+    @lines = []
     file.each do |line|
       case line
       when /^End\s*$/
@@ -59,31 +73,75 @@ class LSM_Entry
       end
     end
 
-    while line = lines.shift
-      case line
-      when /^([a-z-]+):\s*(.*)/im
+    line_num = -1
+    while lines[line_num]
+      line_num += 1
+      current_line = line_num
+      case lines[line_num]
+      when /^([^:]+):\s*(.*)/im
         field, content = $1, $2
-        while lines[0] and lines[0][/^(\s+(.*)|$)/m]
+
+        if field[/\s$/]
+          @errors[current_line] = [
+            "No whitespace allowed between keyword and colon (sorry)" ]
+          next
+        end
+
+        while lines[line_num+1] and lines[line_num+1][/^(\s+(.*)|$)/m]
           content << $1
-          lines.shift
+          line_num+=1
         end
         field = field.downcase.gsub /-/, '_'
-        raise LSM_Error::UnknownField, field unless FIELDS.include? field
-        send "#{field}=", content.chomp.strip
+        if FIELDS.include? field
+          content = content.chomp.strip
+          begin
+            send "#{field}=", content
+          rescue LSM_Error
+            @errors[current_line] = $!.explanation( field, content )
+          end
+        else
+          @errors[current_line] = [ "Unknown keyword: #{field}" ]
+        end
       when /^\s*$/
+        # Ignore empty lines before first field
       else
-        raise LSM_Error::BadLine
+        @errors[current_line] = [ "No keyword found",
+          "  (lines beginning in column 1 must begin with a keyword)" ]
       end
     end
 
-    check_required
-
     self
+  end
+
+  def report_errors
+    output = ''
+    lines.each_with_index do |line,idx|
+      output << '%2d: %s' % [ idx+1, line ]
+    end
+
+    output << "\n"
+
+    (0...lines.length).each do |idx|
+      if @errors[idx]
+        @errors[idx].each do |err_line|
+          output << "error #{idx+1}: #{err_line}\n"
+        end
+      end
+    end
+
+    REQUIRED.each do |field|
+      if send(field).nil?
+        field = field.gsub(/_/, '-').sub(/^([a-z])/){ $1.upcase }
+        output << "error: Required header '#{field}' is missing\n"
+      end
+    end
+
+    output
   end
 end
 
 if $0 == __FILE__
   require 'yaml'
   entry = LSM_Entry.new.from_file( $stdin )
-  entry.to_yaml
+  puts entry.report_errors
 end
