@@ -31,4 +31,13 @@ class TestCheck < Test::Unit::TestCase
 
 		It is ok to have empty lines inside the body.", entry.description
   end
+
+  def test_missing_version
+    entry = File.open("#{$dir}/missing_version.lsm"){ |f| LSM_Entry.new.from_file f }
+    assert_not_nil entry.has_errors?
+    assert_equal %w/version/, entry.missing_fields
+    assert_match %r{Required header 'Version' is missing}, entry.report_errors
+    assert_equal 'lsmtool', entry.title
+    assert_equal 'GPL', entry.copying_policy
+  end
 end
