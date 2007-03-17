@@ -2,21 +2,21 @@
 
 require 'date'
 
-class LSM_Error < Exception
+class LSM_Error < Exception #{{{
   class NoEntry < self; end
   class BadLine< self; end
   class UnknownField < self; end
   class InvalidDate < self
-    def explanation field, content
+    def explanation field, content #{{{
       [
         "field '#{field}' contains invalid date '#{content}'"
       ]
     end
-  end
+  end #}}}
   class MissingFields < self; end
-end
+end #}}}
 
-class LSM_Entry
+class LSM_Entry #{{{
   REQUIRED = %w{ title version entered_date description primary_site }
   FIELDS = REQUIRED + %w{ keywords author maintained_by www_site alternate_site
     original_site platforms copying_policy checked_status checked_date }
@@ -25,28 +25,32 @@ class LSM_Entry
 
   attr_reader :lines, :errors
 
-  def initialize
+  def initialize #{{{
     @errors = {}
-  end
+  end #}}}
 
-  def has_errors?
+  def has_errors? #{{{
     @errors.size > 0 or missing_fields
-  end
+  end #}}}
 
-  def missing_fields
+  # Return Array of required fields that aren't present, or nil
+  def missing_fields #{{{
     missing = []
     REQUIRED.each do |field|
       missing << field if send(field).nil?
     end
     missing.length > 0 ? missing : nil
-  end
+  end #}}}
 
-  def entered_date= dt
+  # Set the Entered-date
+  def entered_date= dt #{{{
     @entered_date = false
     @entered_date = parse_date dt
-  end
+  end #}}}
 
-  def parse_date dt
+  # Check an parse a date, returns a Date object if successful,
+  # otherwise raises LSM_Error::InvalidDate
+  def parse_date dt #{{{
     dt = dt.chomp.strip
     raise LSM_Error::InvalidDate unless dt =~ /^\d{4}-\d{1,2}-\d{1,2}/
     begin
@@ -54,18 +58,19 @@ class LSM_Entry
     rescue Exception
       raise LSM_Error::InvalidDate
     end
-  end
+  end #}}}
 
-  def from_file file
-    # Search for beginning of entry
+  # Read an entry from a file
+  def from_file file #{{{
+    # Search for beginning of entry {{{
     file.each do |line|
       case line
       when /^Begin4/; break
       when nil; raise LSM_Error::NoEntry, "No entry found"
       end
-    end
+    end #}}}
 
-    # Read content into an Array
+    # Read entry into an Array {{{
     @lines = []
     file.each do |line|
       case line
@@ -75,26 +80,30 @@ class LSM_Entry
       else
         lines << line
       end
-    end
+    end #}}}
 
     line_num = -1
     while lines[line_num]
       line_num += 1
       current_line = line_num
       case lines[line_num]
-      when /^([^:]+):\s*(.*)/im
+      when /^([^:]+):\s*(.*)/im # Line containing a header {{{
         field, content = $1, $2
 
+        # Check for whitespace before the colon {{{
         if field[/\s$/]
           @errors[current_line] = [
             "No whitespace allowed between keyword and colon (sorry)" ]
           next
-        end
+        end #}}}
 
+        # Merge any continuation lines {{{
         while lines[line_num+1] and lines[line_num+1][/^(\s+(.*)|$)/m]
           content << $1
           line_num+=1
-        end
+        end #}}}
+
+        # Store field data, if it's a known field {{{
         meth = field.downcase.gsub /-/, '_'
         if FIELDS.include? meth
           content = content.chomp.strip
@@ -105,25 +114,26 @@ class LSM_Entry
           end
         else
           @errors[current_line] = [ "Unknown keyword: #{field}" ]
-        end
-      when /^\s*$/
-        # Ignore empty lines before first field
-      when nil
-        break
-      else
+        end #}}}
+        #}}}
+      when /^\s*$/ # Ignore empty lines before first field
+      when nil; break
+      else # Illegal line
         @errors[current_line] = [ "No keyword found",
           "  (lines beginning in column 1 must begin with a keyword)" ]
       end
     end
 
     self
-  end
+  end #}}}
 
-  def field_name meth
+  # Convert attribute method name to field name
+  def field_name meth #{{{
     meth.gsub(/_/, '-').sub(/^([a-z])/){ $1.upcase }
-  end
+  end #}}}
 
-  def format
+  # Return a String containing the entry formatted for writing to a file
+  def format #{{{
     header_length = FIELDS.map{|x| x.length}.max
 
     output = "Begin4\n"
@@ -136,9 +146,10 @@ class LSM_Entry
     end
     output << "End\n"
     output
-  end
+  end #}}}
 
-  def report_errors
+  # Report any errors found for the entry, returns a String or nil
+  def report_errors #{{{
     return unless has_errors?
     output = ''
     lines.each_with_index do |line,idx|
@@ -161,12 +172,14 @@ class LSM_Entry
     end
 
     output
-  end
-end
+  end #}}}
+end #}}}
 
-if $0 == __FILE__
+if $0 == __FILE__ #{{{
   require 'yaml'
   entry = LSM_Entry.new.from_file( $stdin )
   output = entry.report_errors || entry.format
   puts output
-end
+end #}}}
+
+# vim: fdm=marker
