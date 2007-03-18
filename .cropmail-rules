@@ -1,3 +1,4 @@
+Message.maildir='/srv/mail/pug.qqx.org/lsm'
 
 require 'stringio'
 require 'tmail'
@@ -45,7 +46,17 @@ if subject =~ /^\s*add\s*$/
   check_lsm
 
   response = Message.new
-  response.headers.add 'to', (reply_to rescue from)
+  %w/ reply_to from unix_from /.each do |h|
+    begin
+      recipients = __send__ h
+      unless recipients.addresses.empty?
+        response.headers.add 'to', recipients
+        break
+      end
+    rescue Exception
+    end
+  end
+  response.headers.add 'bcc', 'LSM Maintainer <aaron@schrab.com>'
   response.headers.add 'subject', 'Re: add'
   response.headers.add 'references', message_id
   response.headers.add 'in-reply-to', message_id
@@ -61,4 +72,4 @@ end
 
 save "#{ENV['HOME']}/failed_mail"
 
-# vim: ft=ruby
+# vim: ft=ruby fdm=marker
