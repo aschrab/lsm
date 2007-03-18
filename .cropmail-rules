@@ -6,8 +6,34 @@ require '/home/lsm/ruby_lsm/lsm.rb'
 
 $response_body = ''
 
-class ::Cropmail::Message
-  def check_lsm
+class ::Cropmail::Message #{{{
+  # Create a response to the current message.
+  def create_response #{{{
+    response = Message.new
+    %w/ reply_to from unix_from /.each do |h|
+      begin
+        recipients = __send__ h
+        unless recipients.addresses.empty?
+          response.headers.add 'to', recipients
+          break
+        end
+      rescue Exception
+      end
+    end
+
+    if subject =~ /^\s*Re:/
+      response.headers.add 'subject', subject
+    else
+      response.headers.add 'subject', "Re: #{subject}"
+    end
+    response.headers.add 'references', message_id
+    response.headers.add 'in-reply-to', message_id
+
+    response
+  end #}}}
+
+  # Recurse through multipart messages, extracting LSM entries.
+  def check_lsm #{{{
     if is_multipart? then
       each do |part,invisible|
         next if invisible
@@ -39,27 +65,15 @@ class ::Cropmail::Message
         lsm_log.puts "Content type: #{content_type.fulltype}"
       end
     end
-  end
-end
+  end #}}}
+end #}}}
 
 if subject =~ /^\s*add\s*$/
   check_lsm
 
-  response = Message.new
-  %w/ reply_to from unix_from /.each do |h|
-    begin
-      recipients = __send__ h
-      unless recipients.addresses.empty?
-        response.headers.add 'to', recipients
-        break
-      end
-    rescue Exception
-    end
-  end
+  response = create_response
   response.headers.add 'bcc', 'LSM Maintainer <aaron@schrab.com>'
-  response.headers.add 'subject', 'Re: add'
-  response.headers.add 'references', message_id
-  response.headers.add 'in-reply-to', message_id
+  #response.headers.add 'subject', 'Re: add'
 
   if $response_body == ''
     response.body = "No LSM entries were found."
