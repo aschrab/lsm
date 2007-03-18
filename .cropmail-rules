@@ -26,7 +26,7 @@ class ::Cropmail::Message #{{{
     else
       response.headers.add 'subject', "Re: #{subject}"
     end
-    response.headers.add 'references', message_id
+    response.headers.add 'references', (references.to_s rescue '') + ' ' + message_id.to_s
     response.headers.add 'in-reply-to', message_id
 
     response
