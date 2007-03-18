@@ -68,7 +68,8 @@ class ::Cropmail::Message #{{{
   end #}}}
 end #}}}
 
-if subject =~ /^\s*add\s*$/
+case subject
+when /^\s*add\s*$/
   check_lsm
 
   response = create_response
@@ -82,8 +83,14 @@ if subject =~ /^\s*add\s*$/
   end
 
   response.forward_sendmail :use_t
+when /^\s*(template|help)\s*$/
+  response = create_response
+
+  response.body = File.read "#{ENV['HOME']}/lsm-template"
+  response.forward_sendmail :use_t
 end
 
+done
 save "#{ENV['HOME']}/failed_mail"
 
 # vim: ft=ruby fdm=marker
