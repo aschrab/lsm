@@ -51,18 +51,21 @@ class LSM_Entry #{{{
   end #}}}
 
   # Set the Entered-date
+  undef :entered_date=
   def entered_date= dt #{{{
     @entered_date = false
     @entered_date = parse_date dt
   end #}}}
 
   # Check/set Checked-date
+  undef :checked_date=
   def checked_date= dt #{{{
     @checked_date = false
     @checked_date = parse_date dt
   end #}}}
 
   # Check/set Author
+  undef :author=
   def author= auth #{{{
     if auth[/@/]
       @author = auth
@@ -73,6 +76,7 @@ class LSM_Entry #{{{
   end #}}}
 
   # Check/set Maintained-by
+  undef :maintained_by=
   def maintained_by= maint #{{{
     if maint[/@/]
       @maintained_by = maint
@@ -138,7 +142,7 @@ class LSM_Entry #{{{
         end #}}}
 
         # Store field data, if it's a known field {{{
-        meth = field.downcase.gsub /-/, '_'
+        meth = field.downcase.gsub( /-/, '_' )
         if FIELDS.include? meth
           content = content.chomp.strip
           begin
