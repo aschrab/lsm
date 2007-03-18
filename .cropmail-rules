@@ -1,0 +1,64 @@
+
+require 'stringio'
+require 'tmail'
+require '/home/lsm/ruby_lsm/lsm.rb'
+
+$response_body = ''
+
+class ::Cropmail::Message
+  def check_lsm
+    if is_multipart? then
+      each do |part,invisible|
+        next if invisible
+        part.check_lsm
+      end
+    elsif content_type.fulltype == 'text/plain' and decoded[/^Begin4/]
+      begin
+        io = StringIO.new decoded
+        entry = LSM_Entry.new.from_file io
+        if output = entry.report_errors
+          $response_body << "The following entry has errors, it will NOT be added.\n\n"
+          $response_body << output
+          $response_body << "\n\n"
+        else
+          $response_body << "The following entry looks correct, it will be added.\n\n"
+          $response_body << entry.format
+          $response_body << "\n\n"
+
+          File.open( Time.now.strftime('/home/lsm/updates/%Y-%m-%d'), 'a' ) do |f|
+            f.flock File::LOCK_EX
+            f.puts entry.format
+            f.puts ''
+          end
+        end
+      rescue Exception
+      end
+    else
+      File.open( "/tmp/lsm.log", 'a' ) do |lsm_log|
+        lsm_log.puts "Content type: #{content_type.fulltype}"
+      end
+    end
+  end
+end
+
+if subject =~ /^\s*add\s*$/
+  check_lsm
+
+  response = Message.new
+  response.headers.add 'to', (reply_to rescue from)
+  response.headers.add 'subject', 'Re: add'
+  response.headers.add 'references', message_id
+  response.headers.add 'in-reply-to', message_id
+
+  if $response_body == ''
+    response.body = "No LSM entries were found."
+  else
+    response.body = $response_body
+  end
+
+  response.forward_sendmail :use_t
+end
+
+save "#{ENV['HOME']}/failed_mail"
+
+# vim: ft=ruby
