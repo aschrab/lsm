@@ -212,8 +212,14 @@ end #}}}
 if $0 == __FILE__ #{{{
   require 'yaml'
   entry = LSM_Entry.new.from_file( $< )
-  output = entry.report_errors || entry.format
+  status = if output = entry.report_errors
+    1
+  else
+    output = entry.format
+    0
+  end
   puts output
+  exit status
 end #}}}
 
 # vim: fdm=marker
