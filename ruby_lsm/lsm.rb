@@ -100,13 +100,16 @@ class LSM_Entry #{{{
 
   # Read an entry from a file
   def from_file file #{{{
+    found_begin = false
     # Search for beginning of entry {{{
     file.each do |line|
-      case line
-      when /^Begin4/; break
-      when nil; raise LSM_Error::NoEntry, "No entry found"
+      if line[/^Begin4/]
+        found_begin = true
+        break
       end
     end #}}}
+
+    raise LSM_Error::NoEntry, "No entry found" unless found_begin
 
     # Read entry into an Array {{{
     @lines = []
