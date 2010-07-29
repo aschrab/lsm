@@ -1,7 +1,7 @@
 #!/usr/bin/zsh
-#-x
+set -x
 
-setopt Null_Glob
+setopt Null_Glob Extended_Glob
 
 cd ~lsm
 
@@ -16,18 +16,8 @@ fi
 
 cd ~lsm
 
-if [ -r backup/1 ]
-then
-        mv backup/4 backup/5 2> /dev/null || true
-        mv backup/3 backup/4 2> /dev/null || true
-        mv backup/2 backup/3 2> /dev/null || true
-        mv backup/1 backup/2 2> /dev/null || true
-fi
-
 td=$(date +%Y-%m-%d)
 yd=$(date -d yesterday +%Y-%m-%d)
-#yd=$(perl -e '@t=localtime(time-86400); $t[4]++; $t[5]+=1900;
-#              printf ("%4d-%02d-%02d\n", @t[5,4,3]) ;')
 ud="updates/lsm.${yd}"
 
 if [ "$1" = "-t" ]; then
@@ -39,7 +29,7 @@ set -e
 
 if [ -r $ud ]
 then
-        ${e} lsmadd $ud < ftp/LSM.current > LSM.$td
+	${e} ./ruby_lsm/apply_updates.rb $ud ftp/LSM.current LSM.$td
         ${e} chmod 0644 $ud LSM.$td
 
         ${e} gzip --rsyncable -9 < LSM.${td} > LSM.${td}.gz
@@ -56,6 +46,9 @@ then
         ${e} ln -sf LSM.$td ftp/LSM.current
         ${e} ln -sf LSM.${td}.gz ftp/LSM.current.gz
 
-        ${e} rm -f ftp/LSM.[0-9]*(m+2)
-        ${e} rm -f ftp/updates/lsm.*(m+8)
+        #${e} rm -f ftp/LSM.[0-9]*(m+2)
+        #${e} rm -f ftp/updates/lsm.*(m+8)
+        ${e} rm -f ftp/LSM.[0-9]*~*.gz(om[4,-1])
+        ${e} rm -f ftp/LSM.[0-9]*.gz(om[4,-1])
+        ${e} rm -f ftp/updates/lsm.*(om[8,-1])
 fi
