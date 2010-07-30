@@ -25,6 +25,16 @@ class LSM_Error < Exception #{{{
 end #}}}
 
 class LSM_Entry #{{{
+  def self.each(file)
+    loop do
+      begin
+	yield self.new.from_file( file )
+      rescue LSM_Error::NoEntry
+	break
+      end
+    end
+  end
+
   REQUIRED = %w{ title version entered_date description primary_site }
   FIELDS = REQUIRED + %w{ keywords author maintained_by www_site alternate_site
     original_site platforms copying_policy checked_status checked_date }

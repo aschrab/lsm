@@ -11,31 +11,19 @@ input_file = ARGV.pop
 
 ARGV.each do |file|
   File.open(file) do |f|
-    loop do
-      begin
-	entry = LSM_Entry.new.from_file f
-      rescue LSM_Error::NoEntry
-	break
-      else
+    LSM_Entry.each(f) do |entry|
 	if entry.has_errors?
 	  $stderr.puts entry.report_errors
 	  exit
 	else
 	  new_entries[entry.title.downcase] = entry
 	end
-      end
     end
   end
 end
 
 File.open(input_file) do |input_file|
-  loop do
-    begin
-      entry = LSM_Entry.new.from_file input_file
-    rescue LSM_Error::NoEntry
-      break
-    end
-
+  LSM_Entry.each(input_file) do |entry|
     if new_entries[ entry.title.downcase ]
       entry = new_entries.delete entry.title.downcase
     end
