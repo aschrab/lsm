@@ -38,6 +38,7 @@ lsmcheck
 
 Old, C-based tools for working maintaing LSM.  Won't currently compile.
 
-Requires [publib](http://ftp.debian.org/debian/pool/main/p/publib/publib_0.39.orig.tar.gz).
+Most of the code is in the liw modules of publib, both of which are included in
+a tar file.
 
 <!-- vim: set filetype=markdown : -->
