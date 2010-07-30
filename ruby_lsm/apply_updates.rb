@@ -10,22 +10,22 @@ output_file = File.new( ARGV.pop, 'w' )
 input_file = ARGV.pop
 
 ARGV.each do |file|
-File.open(file) do |f|
-  loop do
-    begin
-      entry = LSM_Entry.new.from_file f
-    rescue LSM_Error::NoEntry
-      break
-    else
-      if entry.has_errors?
-        $stderr.puts entry.report_errors
-        exit
+  File.open(file) do |f|
+    loop do
+      begin
+	entry = LSM_Entry.new.from_file f
+      rescue LSM_Error::NoEntry
+	break
       else
-        new_entries[entry.title.downcase] = entry
+	if entry.has_errors?
+	  $stderr.puts entry.report_errors
+	  exit
+	else
+	  new_entries[entry.title.downcase] = entry
+	end
       end
     end
   end
-end
 end
 
 File.open(input_file) do |input_file|
