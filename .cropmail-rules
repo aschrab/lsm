@@ -1,3 +1,4 @@
+File.umask 007
 Message.maildir='/srv/mail/pug.qqx.org/lsm'
 
 require 'stringio'
@@ -52,7 +53,7 @@ class ::Cropmail::Message #{{{
           $response_body << entry.format
           $response_body << "\n\n"
 
-          File.open( Time.now.strftime('/home/lsm/updates/%Y-%m-%d'), 'a' ) do |f|
+          File.open( Time.now.strftime('/home/lsm/updates/lsm.%Y-%m-%d'), 'a' ) do |f|
             f.flock File::LOCK_EX
             f.puts entry.format
             f.puts ''
