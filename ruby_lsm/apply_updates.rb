@@ -12,12 +12,12 @@ input_file = ARGV.pop
 ARGV.each do |file|
   File.open(file) do |f|
     LSM_Entry.each(f) do |entry|
-	if entry.has_errors?
-	  $stderr.puts entry.report_errors
-	  exit
-	else
-	  new_entries[entry.title.downcase] = entry
-	end
+      if entry.has_errors?
+	$stderr.puts entry.report_errors
+	exit
+      else
+	new_entries[entry.title.downcase] = entry
+      end
     end
   end
 end
