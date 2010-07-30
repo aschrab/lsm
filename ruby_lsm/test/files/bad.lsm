@@ -1,0 +1,21 @@
+Begin4
+
+This line has no colon and therefore no keyword
+Extra field: this is an extra field
+This field name is way too long so that we can check some bounds: yow!
+Version                             :        0.7
+Entered-date:	1995-17-19
+Description:    Tools for browsing and updating an LSM database and for
+		checking the validity of LSM entries (also: for maintaining
+		the LSM).  This version switches to raw termcap (curses
+		stinks).
+Keywords:       Linux Software Map, LSM, browser
+Author:         lars.wirzenius@helsinki.fi (Lars Wirzenius)
+Maintained-by:	same guy (this line has no e-mail address!)
+Primary-site:   sunsite.unc.edu  /pub/Linux/apps/databases
+		lsmtool-0.6.tar.gz
+Platforms:      Linux, but should work on any Unix box with curses and ANSI C.
+		Requires my Publib library, which can be found in
+		ftp://ftp.cs.helsinki.fi/pub/Software/Local/Publib/ .
+Copying-policy: GPL
+End
