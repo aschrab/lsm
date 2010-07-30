@@ -6,7 +6,11 @@ require "#{File.dirname $0}/lsm.rb"
 
 new_entries = {}
 
-File.open(ARGV.shift) do |f|
+output_file = File.new( ARGV.pop, 'w' )
+input_file = ARGV.pop
+
+ARGV.each do |file|
+File.open(file) do |f|
   loop do
     begin
       entry = LSM_Entry.new.from_file f
@@ -22,9 +26,7 @@ File.open(ARGV.shift) do |f|
     end
   end
 end
-
-input_file = ARGV.shift
-output_file = File.new( ARGV.shift, 'w' )
+end
 
 File.open(input_file) do |input_file|
   loop do
