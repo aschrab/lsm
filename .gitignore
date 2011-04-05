@@ -2,6 +2,7 @@
 ftp
 updates
 LSM.20*
+.ackrc
 .bash_logout
 .bash_profile
 .bashrc
@@ -14,9 +15,11 @@ LSM.20*
 .viminfo
 .vimrc
 .zcompdump
+.Zhistory
 .zsh.d
 .zsh_cache
 .zshrc
 .zshrc.zwc
 bin/lsmcheck
 tmp
+vc
