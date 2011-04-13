@@ -9,7 +9,7 @@ volunteers all over the world via email using the template below.  New
 versions will appear first on sunsite.unc.edu and will be announced in
 the newsgroup comp.os.linux.announce .  Discussions pertaining to the
 LSM will be held in the newsgroup comp.os.linux.misc .  Any questions or
-comments can be sent to lsm-help@execpc.com.
+comments can be sent to lsm-help@qqx.org.
 
 As of the end of October, 1996, the LSM is being maintained by Aaron
 Scrab.  The Linux Software Map was originally conceived and maintained
@@ -23,7 +23,7 @@ Instructions
 =============================================================================
 
 Any new packages or updates to old entries should be entered in the
-template below and sent to lsm@execpc.com with the subject 'add'.
+template below and sent to lsm@qqx.org with the subject 'add'.
 Each release of the LSM will have the current template as part of the
 package.  Any changes to the template will be made and released at
 sunsite.unc.edu.
@@ -192,7 +192,7 @@ End
 Empty Template
 =============================================================================
 
-Cut this out, fill it in, send it to 'lsm@execpc.com' with the subject 'add'.
+Cut this out, fill it in, send it to 'lsm@qqx.org' with the subject 'add'.
 
 Begin4
 Title:          
