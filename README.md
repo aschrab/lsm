@@ -36,7 +36,7 @@ necessary syntax.
 lsmcheck
 --------
 
-Old, C-based tools for working maintaing LSM.  Won't currently compile.
+Old, C-based tools for working with and maintaing the LSM.  Won't currently compile.
 
 Most of the code is in the liw modules of publib, both of which are included in
 a tar file.
