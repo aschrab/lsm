@@ -2,7 +2,9 @@
 
 require 'date'
 
-class LSM_Error < Exception #{{{
+module LSM
+
+class Error < Exception #{{{
   class NoEntry < self; end
   class BadLine< self; end
   class UnknownField < self; end
@@ -24,12 +26,12 @@ class LSM_Error < Exception #{{{
   class MissingFields < self; end
 end #}}}
 
-class LSM_Entry #{{{
+class Entry #{{{
   def self.each(file)
     loop do
       begin
 	yield self.new.from_file( file )
-      rescue LSM_Error::NoEntry
+      rescue LSM::Error::NoEntry
 	break
       end
     end
@@ -81,7 +83,7 @@ class LSM_Entry #{{{
       @author = auth
     else
       @author = false
-      raise LSM_Error::InvalidEmail
+      raise LSM::Error::InvalidEmail
     end
   end #}}}
 
@@ -92,19 +94,19 @@ class LSM_Entry #{{{
       @maintained_by = maint
     else
       @maintained_by = false
-      raise LSM_Error::InvalidEmail
+      raise LSM::Error::InvalidEmail
     end
   end #}}}
 
   # Check an parse a date, returns a Date object if successful,
-  # otherwise raises LSM_Error::InvalidDate
+  # otherwise raises LSM::Error::InvalidDate
   def parse_date dt #{{{
     dt = dt.chomp.strip
-    raise LSM_Error::InvalidDate unless dt =~ /^\d{4}-\d{1,2}-\d{1,2}/
+    raise LSM::Error::InvalidDate unless dt =~ /^\d{4}-\d{1,2}-\d{1,2}/
     begin
       return Date.strptime( dt, '%Y-%m-%d' )
     rescue Exception
-      raise LSM_Error::InvalidDate
+      raise LSM::Error::InvalidDate
     end
   end #}}}
 
@@ -119,7 +121,7 @@ class LSM_Entry #{{{
       end
     end #}}}
 
-    raise LSM_Error::NoEntry, "No entry found" unless found_begin
+    raise LSM::Error::NoEntry, "No entry found" unless found_begin
 
     # Read entry into an Array {{{
     @lines = []
@@ -160,7 +162,7 @@ class LSM_Entry #{{{
           content = content.chomp.strip
           begin
             send "#{meth}=", content
-          rescue LSM_Error
+          rescue LSM::Error
             @errors[current_line] = $!.explanation( field, content )
           end
         else
@@ -226,9 +228,11 @@ class LSM_Entry #{{{
   end #}}}
 end #}}}
 
+end
+
 if $0 == __FILE__ #{{{
   require 'yaml'
-  entry = LSM_Entry.new.from_file( $< )
+  entry = LSM::Entry.new.from_file( $< )
   status = if output = entry.report_errors
     1
   else

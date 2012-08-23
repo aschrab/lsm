@@ -7,7 +7,7 @@ $dir = 'test/files'
 
 class TestCheck < Test::Unit::TestCase
   def test_good
-    entry = File.open("#{$dir}/good.lsm"){ |f| LSM_Entry.new.from_file f }
+    entry = File.open("#{$dir}/good.lsm"){ |f| LSM::Entry.new.from_file f }
     assert_equal nil, entry.has_errors?
     assert_equal nil, entry.report_errors
     assert_equal nil, entry.missing_fields
@@ -33,7 +33,7 @@ class TestCheck < Test::Unit::TestCase
   end
 
   def test_missing_version
-    entry = File.open("#{$dir}/missing_version.lsm"){ |f| LSM_Entry.new.from_file f }
+    entry = File.open("#{$dir}/missing_version.lsm"){ |f| LSM::Entry.new.from_file f }
     assert_not_nil entry.has_errors?
     assert_equal %w/version/, entry.missing_fields
     assert_match %r{Required header 'Version' is missing}, entry.report_errors
@@ -42,7 +42,7 @@ class TestCheck < Test::Unit::TestCase
   end
 
   def test_bad_date
-    entry = File.open("#{$dir}/bad_date.lsm"){ |f| LSM_Entry.new.from_file f }
+    entry = File.open("#{$dir}/bad_date.lsm"){ |f| LSM::Entry.new.from_file f }
     assert_not_nil entry.has_errors?
     assert_equal nil, entry.missing_fields
     assert_equal [2], entry.errors.keys
@@ -52,7 +52,7 @@ class TestCheck < Test::Unit::TestCase
   end
 
   def test_invalid_author
-    entry=File.open("#{$dir}/invalid_author.lsm"){|f| LSM_Entry.new.from_file f}
+    entry=File.open("#{$dir}/invalid_author.lsm"){|f| LSM::Entry.new.from_file f}
     assert_not_nil entry.has_errors?
     assert_equal nil, entry.missing_fields
     assert_equal [8], entry.errors.keys
