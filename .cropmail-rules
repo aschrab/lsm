@@ -5,8 +5,6 @@ require 'stringio'
 require 'tmail'
 require '/home/lsm/ruby_lsm/lsm.rb'
 
-$response_body = ''
-
 class ::Cropmail::Message #{{{
   # Create a response to the current message.
   def create_response #{{{
@@ -34,24 +32,24 @@ class ::Cropmail::Message #{{{
   end #}}}
 
   # Recurse through multipart messages, extracting LSM entries.
-  def check_lsm #{{{
+  def check_lsm response='' #{{{
     if is_multipart? then
       each do |part,invisible|
         next if invisible
-        part.check_lsm
+        part.check_lsm response
       end
     elsif content_type.fulltype == 'text/plain' and decoded[/^Begin4/]
       begin
         io = StringIO.new decoded
         entry = LSM_Entry.new.from_file io
         if output = entry.report_errors
-          $response_body << "The following entry has errors, it will NOT be added.\n\n"
-          $response_body << output
-          $response_body << "\n\n"
+          response << "The following entry has errors, it will NOT be added.\n\n"
+          response << output
+          response << "\n\n"
         else
-          $response_body << "The following entry looks correct, it will be added.\n\n"
-          $response_body << entry.format
-          $response_body << "\n\n"
+          response << "The following entry looks correct, it will be added.\n\n"
+          response << entry.format
+          response << "\n\n"
 
           File.open( Time.now.strftime('/home/lsm/updates/lsm.%Y-%m-%d'), 'a' ) do |f|
             f.flock File::LOCK_EX
@@ -66,21 +64,23 @@ class ::Cropmail::Message #{{{
         lsm_log.puts "Content type: #{content_type.fulltype}"
       end
     end
+
+    response
   end #}}}
 end #}}}
 
 case subject
 when /^\s*add\s*$/
-  check_lsm
+  response_body = check_lsm
 
   response = create_response
   response.headers.add 'bcc', 'LSM Maintainer <aaron@schrab.com>'
   #response.headers.add 'subject', 'Re: add'
 
-  if $response_body == ''
+  if response_body == ''
     response.body = "No LSM entries were found."
   else
-    response.body = $response_body
+    response.body = response_body
   end
 
   response.forward_sendmail :use_t
