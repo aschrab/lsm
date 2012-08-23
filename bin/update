@@ -36,6 +36,7 @@ set -e
 if [[ $#updates -gt 0 ]]
 then
   ${e} ./ruby_lsm/apply_updates.rb $updates ftp/LSM.current LSM.$td
+  ${e} diff -u ftp/LSM.current LSM.$td || true
   ${e} chmod 0644 $updates LSM.$td
 
   ${e} gzip --rsyncable -9 < LSM.${td} > LSM.${td}.gz
