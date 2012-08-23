@@ -30,9 +30,9 @@ class Entry #{{{
   def self.each(file)
     loop do
       begin
-	yield self.new.from_file( file )
+        yield self.new.from_file( file )
       rescue LSM::Error::NoEntry
-	break
+        break
       end
     end
   end
