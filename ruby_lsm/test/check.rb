@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
 require 'test/unit'
-require 'lsm'
+require "#{File.dirname $0}/../lsm"
 
 $dir = 'test/files'
 
