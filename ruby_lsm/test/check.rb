@@ -60,6 +60,17 @@ class TestCheck < Test::Unit::TestCase
     assert_equal 'lsmtool', entry.title
     assert_equal 'GPL', entry.copying_policy
   end
+
+  def test_no_keyword_line
+    entry=File.open("#{$dir}/no_keyword_line.lsm"){|f| LSM::Entry.new.from_file f}
+    assert_equal 'lsmtool', entry.title
+    assert_equal 'GPL', entry.copying_policy
+
+    assert_not_nil entry.has_errors?
+    assert_equal nil, entry.missing_fields
+    assert_equal [15], entry.errors.keys
+    assert_equal ["No keyword found", "  (lines beginning in column 1 must begin with a keyword)"], entry.errors[15]
+  end
 end
 
 # vim: fdm=syntax
