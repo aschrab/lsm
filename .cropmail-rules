@@ -41,7 +41,7 @@ class ::Cropmail::Message #{{{
     elsif content_type.fulltype == 'text/plain' and decoded[/^Begin4/]
       begin
         io = StringIO.new decoded
-        entry = LSM_Entry.new.from_file io
+        entry = LSM::Entry.new.from_file io
         if output = entry.report_errors
           response << "The following entry has errors, it will NOT be added.\n\n"
           response << output
