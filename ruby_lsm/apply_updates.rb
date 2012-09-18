@@ -6,12 +6,12 @@ require "#{File.dirname $0}/lsm.rb"
 
 new_entries = {}
 
-output_file = File.new( ARGV.pop, 'w' )
-input_file = ARGV.pop
+output = File.new( ARGV.pop, 'w' )
+original_file = ARGV.pop
 
-ARGV.each do |file|
-  File.open(file) do |f|
-    LSM::Entry.each(f) do |entry|
+ARGV.each do |update_file|
+  File.open(update_file) do |update|
+    LSM::Entry.each(update) do |entry|
       if entry.has_errors?
         $stderr.puts entry.report_errors
         exit
@@ -22,18 +22,18 @@ ARGV.each do |file|
   end
 end
 
-File.open(input_file) do |input_file|
-  LSM::Entry.each(input_file) do |entry|
+File.open(original_file) do |original|
+  LSM::Entry.each(original) do |entry|
     if new_entries[ entry.title.downcase ]
       entry = new_entries.delete entry.title.downcase
     end
 
-    output_file.puts entry.format
-    output_file.puts
+    output.puts entry.format
+    output.puts
   end
 end
 
 new_entries.each do |title,entry|
-  output_file.puts entry.format
-  output_file.puts
+  output.puts entry.format
+  output.puts
 end
