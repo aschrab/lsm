@@ -112,6 +112,7 @@ class Entry #{{{
 
   # Read an entry from a file
   def from_file file #{{{
+    completed   = false
     found_begin = false
     # Search for beginning of entry {{{
     file.each do |line|
@@ -134,6 +135,8 @@ class Entry #{{{
         lines << line
       end
     end #}}}
+
+    @errors[ @lines.size+1 ] << 'Missing "End" line' unless completed
 
     line_num = -1
     while lines[line_num]

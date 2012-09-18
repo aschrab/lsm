@@ -82,6 +82,16 @@ class TestCheck < Test::Unit::TestCase
     assert_equal [15], entry.errors.keys
     assert_equal [ "Unknown keyword: Unknown-keyword" ], entry.errors[15]
   end
+
+  def test_missing_end
+    entry=File.open("#{$dir}/missing_end.lsm"){|f| LSM::Entry.new.from_file f}
+    assert_not_nil entry.has_errors?
+    assert_equal nil, entry.missing_fields
+    assert_equal ['Missing "End" line'], entry.errors[16]
+    assert_match %r{Missing "End" line}, entry.report_errors
+    assert_equal 'lsmtool', entry.title
+    assert_equal 'GPL', entry.copying_policy
+  end
 end
 
 # vim: fdm=syntax
