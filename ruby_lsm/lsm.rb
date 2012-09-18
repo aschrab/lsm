@@ -211,11 +211,9 @@ class Entry #{{{
 
     output << "\n"
 
-    (0...lines.length).each do |idx|
-      if @errors[idx]
-        @errors[idx].each do |err_line|
-          output << "error #{idx+1}: #{err_line}\n"
-        end
+    (@errors.keys.sort).each do |idx|
+      @errors[idx].each do |err_line|
+        output << "error #{idx+1}: #{err_line}\n"
       end
     end
 
