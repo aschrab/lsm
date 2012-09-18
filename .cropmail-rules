@@ -27,6 +27,9 @@ class ::Cropmail::Message #{{{
     end
     response.headers.add 'references', (references.to_s rescue '') + ' ' + message_id.to_s
     response.headers.add 'in-reply-to', message_id
+    response.headers.add 'MIME-Version', '1.0'
+    response.headers.add 'Content-Type', 'text/plain; charset="utf-8"'
+    response.headers.add 'Content-Transfer-Encoding', '8bit'
 
     response
   end #}}}
