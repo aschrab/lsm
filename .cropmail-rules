@@ -75,7 +75,6 @@ when /^\s*add\s*$/
 
   response = create_response
   response.headers.add 'bcc', 'LSM Maintainer <aaron@schrab.com>'
-  #response.headers.add 'subject', 'Re: add'
 
   if response_body == ''
     response.body = "No LSM entries were found."
