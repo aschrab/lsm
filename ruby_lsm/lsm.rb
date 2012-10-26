@@ -46,7 +46,7 @@ class Entry #{{{
   attr_reader :lines, :errors
 
   def initialize #{{{
-    @errors = {}
+    @errors = Hash.new { |h,k| h[k] = [] }
   end #}}}
 
   def has_errors? #{{{
@@ -112,6 +112,7 @@ class Entry #{{{
 
   # Read an entry from a file
   def from_file file #{{{
+    completed   = false
     found_begin = false
     # Search for beginning of entry {{{
     file.each do |line|
@@ -135,6 +136,8 @@ class Entry #{{{
       end
     end #}}}
 
+    @errors[ @lines.size+1 ] << 'Missing "End" line' unless completed
+
     line_num = -1
     while lines[line_num]
       line_num += 1
@@ -145,8 +148,7 @@ class Entry #{{{
 
         # Check for whitespace before the colon {{{
         if field[/\s$/]
-          @errors[current_line] = [
-            "No whitespace allowed between keyword and colon (sorry)" ]
+          @errors[current_line] << "No whitespace allowed between keyword and colon (sorry)"
           next
         end #}}}
 
@@ -163,17 +165,17 @@ class Entry #{{{
           begin
             send "#{meth}=", content
           rescue LSM::Error
-            @errors[current_line] = $!.explanation( field, content )
+            @errors[current_line] << $!.explanation( field, content )
           end
         else
-          @errors[current_line] = [ "Unknown keyword: #{field}" ]
+          @errors[current_line] << "Unknown keyword: #{field}"
         end #}}}
         #}}}
       when /^\s*$/ # Ignore empty lines before first field
       when nil; break
       else # Illegal line
-        @errors[current_line] = [ "No keyword found",
-          "  (lines beginning in column 1 must begin with a keyword)" ]
+        @errors[current_line] << "No keyword found"
+        @errors[current_line] << "  (lines beginning in column 1 must begin with a keyword)"
       end
     end
 
