@@ -74,6 +74,7 @@ end #}}}
 
 case subject
 when /^\s*add\s*$/
+  save "#{ENV['HOME']}/add-requests"
   response_body = check_lsm
 
   response = create_response
