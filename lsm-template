@@ -110,9 +110,9 @@ Title:		The name of the package.  Please use the same title for
 Version:	Version number or other designation.  Use a date if
 		nothing else is appropriate.
 Entered-date:   Date in format YYYY-MM-DD of when the LSM entry was last
-                modified, where YYYY is last two digits of the year in the
-                Gregorian calendar, MM is the 2-digit month, and DD is
-                2-digit day of month.  (Example: 2000-01-31)
+                modified, where YYYY is the full four-digit year in the
+                Gregorian calendar, MM is the 2-digit month, and DD is the
+                2-digit day of the month.  (Example: 2000-01-31)
 
                 Note that you should fill in both Version and Entered-date.
 Description:	Short description of the package.
