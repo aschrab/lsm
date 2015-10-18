@@ -1,0 +1,93 @@
+File.umask 007
+
+require 'stringio'
+require 'mail'
+require '/home/lsm/ruby_lsm/lsm.rb'
+
+def create_response
+  response = ::Mail.new
+
+  %w/ reply_to from unix_from /.each do |h|
+    begin
+      recipients = headers.__send__ h
+      next unless recipients
+      response.to = recipients
+    rescue
+    else
+      break
+    end
+  end
+
+  subject = headers.subject
+  subject = "Re: #{subject}" unless subject =~ /^\s*Re:/
+  response.subject = subject
+
+  response.header['References'] = (references.to_s rescue '') + ' ' + message_id.to_s
+  response.header['In-Reply-To'] = message_id
+
+  yield response if block_given?
+  response
+end
+
+def check_lsm response = ''
+  if is_multipart? then
+    each do |part,invisible|
+      part.check_lsm response unless invisible
+    end
+  elsif content_type.fulltype == 'text/plain' and body_decoded[/^Begin4/]
+    check_entry body_decoded, response
+  else
+    File.open( "/tmp/lsm.log", 'a' ) do |lsm_log|
+      lsm_log.puts "Content type: #{content_type.fulltype}"
+    end
+  end
+
+  response
+end
+
+def check_entry body, response
+  io = StringIO.new body
+  entry = LSM::Entry.new.from_file io
+
+  if output = entry.report_errors
+    response << "The following entry has errors, it will NOT be added.\n\n"
+    response << output
+    response << "\n\n"
+  else
+    response << "The following entry looks correct, it will be added.\n\n"
+    response << entry.format
+    response << "\n\n"
+
+    File.open( Time.now.strftime('/home/lsm/updates/lsm.%Y-%m-%d'), 'a' ) do |f|
+      f.flock File::LOCK_EX
+      f.puts entry.format
+      f.puts ''
+    end
+  end
+rescue
+end
+
+def process
+  case headers.subject
+  when /^\s*add\s*$/
+    response_body = check_lsm
+    response_body = "No LSM entries were found" if response_body == ''
+
+    create_response do |response|
+      response.bcc = 'LSM Maintainer <aaron@schrab.com>'
+      response.body = response_body
+
+      $stderr.puts response.encoded
+      # FIXME send response
+    end
+  when /^\s*(template|help)\s*$/
+    create_rsponse do |response|
+      response.body = File.read "#{ENV['HOME']}/lsm-template"
+      # FIXME send response
+    end
+  end
+
+  done
+end
+
+# vim: ft=ruby
