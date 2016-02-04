@@ -29,42 +29,46 @@ def create_response
   response
 end
 
-def check_lsm response = ''
-  if is_multipart? then
-    each do |part,invisible|
-      part.check_lsm response unless invisible
-    end
-  elsif content_type.fulltype == 'text/plain' and body_decoded[/^Begin4/]
-    check_entry body_decoded, response
-  else
-    File.open( "/tmp/lsm.log", 'a' ) do |lsm_log|
-      lsm_log.puts "Content type: #{content_type.fulltype}"
-    end
+class Hermes::Message
+  def content_type
+    headers[:content_type] || 'text/plain'
   end
 
-  response
-end
-
-def check_entry body, response
-  io = StringIO.new body
-  entry = LSM::Entry.new.from_file io
-
-  if output = entry.report_errors
-    response << "The following entry has errors, it will NOT be added.\n\n"
-    response << output
-    response << "\n\n"
-  else
-    response << "The following entry looks correct, it will be added.\n\n"
-    response << entry.format
-    response << "\n\n"
-
-    File.open( Time.now.strftime('/home/lsm/updates/lsm.%Y-%m-%d'), 'a' ) do |f|
-      f.flock File::LOCK_EX
-      f.puts entry.format
-      f.puts ''
+  def check_lsm response = ''
+    if is_multipart?
+      body.each { |part| part.check_lsm response }
+    elsif content_type == 'text/plain' and body_decoded[/^Begin4/]
+      check_entry body_decoded, response
+    else
+      File.open( "/tmp/lsm.log", 'a' ) do |lsm_log|
+        lsm_log.puts "Content type: #{content_type}"
+      end
     end
+
+    response
   end
-rescue
+
+  def check_entry body, response
+    io = StringIO.new body
+    entry = LSM::Entry.new.from_file io
+
+    if output = entry.report_errors
+      response << "The following entry has errors, it will NOT be added.\n\n"
+      response << output
+      response << "\n\n"
+    else
+      response << "The following entry looks correct, it will be added.\n\n"
+      response << entry.format
+      response << "\n\n"
+
+      File.open( Time.now.strftime('/home/lsm/updates/lsm.%Y-%m-%d'), 'a' ) do |f|
+        f.flock File::LOCK_EX
+        f.puts entry.format
+        f.puts ''
+      end
+    end
+  rescue
+  end
 end
 
 def process
