@@ -41,19 +41,15 @@ def create_response
 end
 
 class Hermes::Message
-  def content_type
-    headers[:content_type] || 'text/plain'
+  def ctype
+    content_type.caption rescue 'text/plain'
   end
 
   def check_lsm response = ''
     if is_multipart?
       body.each { |part| part.check_lsm response }
-    elsif content_type == 'text/plain' and body_decoded[/^Begin4/]
+    elsif ctype == 'text/plain' and body_decoded[/^Begin4/]
       check_entry body_decoded, response
-    else
-      File.open( "/tmp/lsm.log", 'a' ) do |lsm_log|
-        lsm_log.puts "Content type: #{content_type}"
-      end
     end
 
     response
