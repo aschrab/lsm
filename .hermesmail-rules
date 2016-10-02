@@ -90,8 +90,7 @@ def process
       response.bcc = 'LSM Maintainer <aaron@schrab.com>'
       response.body = response_body
 
-      $stderr.puts response.encoded
-      # FIXME send response
+      response.deliver!
     end
   when /^\s*(template|help)\s*$/
     create_response do |response|
