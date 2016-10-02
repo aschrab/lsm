@@ -4,8 +4,13 @@ require 'stringio'
 require 'mail'
 require '/home/lsm/ruby_lsm/lsm.rb'
 
+::Mail.defaults do
+  delivery_method :sendmail
+end
+
 def create_response
   response = ::Mail.new
+  response.from = 'lsm@qqx.org'
 
   %w/ reply_to from unix_from /.each do |h|
     begin
@@ -22,8 +27,12 @@ def create_response
   subject = "Re: #{subject}" unless subject =~ /^\s*Re:/
   response.subject = subject
 
-  response.header['References'] = (references.to_s rescue '') + ' ' + message_id.to_s
-  response.header['In-Reply-To'] = message_id
+  if message_id = headers.message_id
+    refs = headers.references.map(&:to_s) rescue []
+    refs << message_id
+    response.header['References'] = refs.map{|r| "<#{r}>" }.join(' ')
+    response.header['In-Reply-To'] = "<#{message_id}>"
+  end
 
   yield response if block_given?
   response
@@ -85,9 +94,9 @@ def process
       # FIXME send response
     end
   when /^\s*(template|help)\s*$/
-    create_rsponse do |response|
+    create_response do |response|
       response.body = File.read "#{ENV['HOME']}/lsm-template"
-      # FIXME send response
+      response.deliver!
     end
   end
 
