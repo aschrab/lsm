@@ -4,6 +4,8 @@ require 'stringio'
 require 'mail'
 require '/home/lsm/ruby_lsm/lsm.rb'
 
+self.default_format = Maildir
+
 ::Mail.defaults do
   delivery_method :sendmail
 end
@@ -83,6 +85,8 @@ end
 def process
   case headers.subject
   when /^\s*add\s*$/
+    save "#{ENV['HOME']}/add-requests"
+
     response_body = check_lsm
     response_body = "No LSM entries were found" if response_body == ''
 
