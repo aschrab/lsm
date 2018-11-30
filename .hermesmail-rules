@@ -48,7 +48,7 @@ class Hermes::Message
   def check_lsm response = ''
     if is_multipart?
       body.each { |part| part.check_lsm response }
-    elsif ctype == 'text/plain' and body_decoded[/^Begin4/]
+    elsif ctype.downcase == 'text/plain' and body_decoded[/^Begin4/]
       check_entry body_decoded, response
     end
 
