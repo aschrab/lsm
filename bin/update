@@ -8,9 +8,9 @@ path=( ~lsm/bin $path )
 
 if [ "$1" = "-t" ]
 then
-        e=echo
+  e=echo
 else
-        e=""
+  e=""
 fi
 
 cd ~lsm
@@ -27,7 +27,7 @@ do
 done
 
 if [ "$1" = "-t" ]; then
-	ls -l $updates
+  ls -l $updates
 fi
 
 set -e
