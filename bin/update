@@ -1,5 +1,4 @@
 #!/usr/bin/zsh
-set -x
 
 setopt Null_Glob Extended_Glob RE_Match_PCRE
 
@@ -42,6 +41,7 @@ then
   ${e} gzip --rsyncable -9 < LSM.${td} > LSM.${td}.gz
   ${e} chmod 0644 LSM.${td}.gz
 
+  set -x
   ${e} mv LSM.$td ftp/
   ${e} mv LSM.${td}.gz ftp/
   ${e} mv $updates ftp/updates/
